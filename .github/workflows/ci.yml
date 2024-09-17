@@ -33,14 +33,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Maven
+      # Step 2: List directory structure
+      - name: List directory structure
+        run: ls -R
+
+      # Step 3: Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'adopt'
 
-      # Step 3: Build the JAR files
+      # Step 4: Build the JAR files
       - name: Build auth-service JAR
         run: mvn -f ./auth-service/pom.xml clean package
 
@@ -56,7 +60,7 @@ jobs:
       - name: Build audit-service JAR
         run: mvn -f ./audit-service/pom.xml clean package
 
-      # Step 4: Verify JAR files
+      # Step 5: Verify JAR files
       - name: Verify auth-service JAR
         run: ls -l ./auth-service/target/
 
@@ -72,18 +76,18 @@ jobs:
       - name: Verify audit-service JAR
         run: ls -l ./audit-service/target/
 
-      # Step 5: Set up Docker Buildx (optional for multi-arch builds)
+      # Step 6: Set up Docker Buildx (optional for multi-arch builds)
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 6: Log in to Docker Hub (if you want to push the images to Docker Hub)
+      # Step 7: Log in to Docker Hub (if you want to push the images to Docker Hub)
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 7: Build Docker images for each service
+      # Step 8: Build Docker images for each service
       - name: Build auth-service image
         run: |
           docker build -t auth-service:latest ./auth-service
@@ -104,7 +108,7 @@ jobs:
         run: |
           docker build -t audit-service:latest ./audit-service
 
-      # Step 8: (Optional) Push the images to Docker Hub
+      # Step 9: (Optional) Push the images to Docker Hub
       - name: Push auth-service image
         run: |
           docker tag auth-service:latest ${{ secrets.DOCKER_USERNAME }}/auth-service:latest
