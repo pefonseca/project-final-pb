@@ -25,6 +25,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserResponseDTO create(UserCreateRequestDTO userCreateRequestDTO) {
+        log.info("[UserServiceImpl] -> (create): Criando usuário com dados: {}", userCreateRequestDTO);
         UserResponseDTO userDB;
         userDB = repository.save(userCreateRequestDTO.toEntity()).toDTO();
         userDB.setCreatedUser("Usuário criado com sucesso.");
@@ -37,6 +38,7 @@ public class UserServiceImpl implements UserService {
                                                          .details("Usuário criado com sucesso.")
                                                          .build();
 
+        log.info("[UserServiceImpl] -> (create): Enviando mensagem de auditoria: {}", auditMessageDTO);
         producer.integration(auditMessageDTO);
 
         return userDB;
@@ -48,7 +50,13 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserResponseDTO findById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado.")).toDTO();
+        log.info("[UserServiceImpl] -> (findById): Buscando usuário com ID: {}", id);
+        UserResponseDTO userResponseDTO = repository.findById(id)
+                                                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado."))
+                                                    .toDTO();
+
+        log.info("[UserServiceImpl] -> (findById): Usuário encontrado: {}", userResponseDTO);
+        return userResponseDTO;
     }
 
     /**
@@ -58,6 +66,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserResponseDTO update(UserUpdateRequestDTO userUpdateRequestDTO, Long id) {
+        log.info("[UserServiceImpl] -> (update): Atualizando usuário com ID: {} e dados: {}", id, userUpdateRequestDTO);
 
         UserResponseDTO userDB = findById(id);
 
@@ -71,8 +80,10 @@ public class UserServiceImpl implements UserService {
                                                          .details("Usuário atualizando com sucesso.")
                                                          .build();
 
+        log.info("[UserServiceImpl] -> (update): Enviando mensagem de auditoria: {}", auditMessageDTO);
         producer.integration(auditMessageDTO);
 
+        log.info("[UserServiceImpl] -> (update): Usuário atualizado com sucesso: {}", userSaved);
         return repository.save(userSaved).toDTO();
     }
 
@@ -82,26 +93,12 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserResponseDTO findByEmail(String email) {
-        return repository.findByEmail(email)
-                         .orElseThrow(() -> new RuntimeException("User not found,."))
-                         .toDTO();
-    }
+        log.info("[UserServiceImpl] -> (findByEmail): Buscando usuário com e-mail: {}", email);
+        UserResponseDTO userResponseDTO = repository.findByEmail(email)
+                                                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado."))
+                                                    .toDTO();
 
-    /**
-     * @param payload
-     */
-    @Override
-    public void errorAuditLog(String payload) {
-        System.err.println(" ===== RESPOSTA ERRO AUDITORIA ===== " + payload);
-        log.error("[UserServiceImpl] -> (successAuditLog): Erro ao fazer auditoria.");
-    }
-
-    /**
-     * @param payload
-     */
-    @Override
-    public void successAuditLog(String payload) {
-        System.out.println(" ===== RESPOSTA SUCESSO AUDITORIA ===== " + payload);
-        log.info("[UserServiceImpl] -> (successAuditLog): Sucesso ao fazer auditoria.");
+        log.info("[UserServiceImpl] -> (findByEmail): Usuário encontrado: {}", userResponseDTO);
+        return userResponseDTO;
     }
 }

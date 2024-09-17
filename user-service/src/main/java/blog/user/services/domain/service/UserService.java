@@ -10,6 +10,5 @@ public interface UserService {
     UserResponseDTO findById(Long id);
     UserResponseDTO update(UserUpdateRequestDTO userUpdateRequestDTO, Long id);
     UserResponseDTO findByEmail(String email);
-    void errorAuditLog(String payload);
-    void successAuditLog(String payload);
+
 }

@@ -144,5 +144,15 @@ services:
       - "9411:9411"
     restart: unless-stopped
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "9090:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    restart: unless-stopped
+
 volumes:
   postgres_data:

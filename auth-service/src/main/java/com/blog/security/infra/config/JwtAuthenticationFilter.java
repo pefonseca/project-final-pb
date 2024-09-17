@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -31,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String userEmail;
 
         if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.info("[JwtAuthenticationFilter] -> (doFilterInternal): Cabeçalho de autorização não encontrado ou não está no formato Bearer. Continuando o filtro.");
             filterChain.doFilter(request, response);
             return;
         }
@@ -38,9 +41,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         userEmail = jwtService.extractUsername(jwt);
 
+        log.info("[JwtAuthenticationFilter] -> (doFilterInternal): Token JWT extraído, e-mail do usuário: {}", userEmail);
         if(userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            log.info("[JwtAuthenticationFilter] -> (doFilterInternal): Tentando carregar os detalhes do usuário para o e-mail: {}", userEmail);
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             if(jwtService.isTokenValid(jwt, userDetails)) {
+                log.info("[JwtAuthenticationFilter] -> (doFilterInternal): Token JWT é válido. Autenticando usuário.");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -50,6 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                log.info("[JwtAuthenticationFilter] -> (doFilterInternal): Contexto de segurança atualizado com a autenticação do usuário.");
             }
         }
         filterChain.doFilter(request, response);

@@ -11,6 +11,4 @@ public interface PostService {
     PostResponseDTO create(PostRequestDTO requestDTO);
     PostResponseDTO findById(Long id);
     void delete(Long id);
-    void errorAuditLog(String payload);
-    void successAuditLog(String payload);
 }

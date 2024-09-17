@@ -22,15 +22,20 @@ public class AuditLogRequestConsumer {
 
     @RabbitListener(queues = "audit-log-queue")
     public void logAudit(@Payload Message message) {
+        log.info("[AuditLogServiceImpl] -> (logAudit): recebendo a mensagem para salvar a alteração na entidade.");
         var messageRequest = message.getPayload();
 
+        log.debug("[AuditLogRequestConsumer] -> (logAudit): Payload recebido: {}", messageRequest);
+
+        log.info("[AuditLogRequestConsumer] -> (logAudit): Validando mensagem recebida.");
         if (messageRequest instanceof String) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
-
                 AuditMessageDTO auditMessageDTO = objectMapper.readValue((String) messageRequest, AuditMessageDTO.class);
 
-                AuditLog log = new AuditLog(
+                log.info("[AuditLogRequestConsumer] -> (logAudit): Mensagem desserializada com sucesso.");
+
+                AuditLog auditLog = new AuditLog(
                         null,
                         auditMessageDTO.getEntityName(),
                         auditMessageDTO.getEntityId(),
@@ -38,8 +43,10 @@ public class AuditLogRequestConsumer {
                         LocalDateTime.now(),
                         auditMessageDTO.getDetails()
                 );
+                log.debug("[AuditLogRequestConsumer] -> (logAudit): Salvando o log de auditoria: {}", auditLog);
+                auditLogRepository.save(auditLog);
 
-                auditLogRepository.save(log);
+                log.info("[AuditLogRequestConsumer] -> (logAudit): Log de auditoria salvo com sucesso.");
             } catch (JsonProcessingException e) {
                 log.error("[AuditLogServiceImpl] -> (logAudit): Erro ao desserializar a mensagem: " + e.getMessage());
             }

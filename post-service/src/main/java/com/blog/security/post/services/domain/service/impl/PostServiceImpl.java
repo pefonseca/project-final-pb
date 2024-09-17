@@ -31,7 +31,8 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     public List<PostResponseDTO> findAll() {
-        return repository.findAll().stream().map(post -> {
+        log.info("[PostServiceImpl] -> (findAll): Buscando todas as postagens.");
+        List<PostResponseDTO> posts = repository.findAll().stream().map(post -> {
             var userResponse = feignClient.findById(post.getUserId()).getBody();
             return PostResponseDTO.builder()
                                   .id(post.getId())
@@ -41,6 +42,9 @@ public class PostServiceImpl implements PostService {
                                   .updateAt(post.getUpdatedAt())
                                   .build();
         }).toList();
+
+        log.info("[PostServiceImpl] -> (findAll): Postagens encontradas: {}", posts.size());
+        return posts;
     }
 
     /**
@@ -49,6 +53,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     public PostResponseDTO create(PostRequestDTO requestDTO) {
+        log.info("[PostServiceImpl] -> (create): Criando nova postagem com dados: {}", requestDTO);
         PostResponseDTO postResponseDTO;
         postResponseDTO = repository.save(requestDTO.toEntity()).toDTO();
 
@@ -64,8 +69,10 @@ public class PostServiceImpl implements PostService {
                                                          .details("Postagem criada com sucesso.")
                                                          .build();
 
+        log.info("[PostServiceImpl] -> (create): Enviando mensagem de auditoria: {}", auditMessageDTO);
         producer.integration(auditMessageDTO);
 
+        log.info("[PostServiceImpl] -> (create): Postagem criada com sucesso: {}", postResponseDTO);
         return postResponseDTO;
     }
 
@@ -75,6 +82,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     public PostResponseDTO findById(Long id) {
+        log.info("[PostServiceImpl] -> (findById): Buscando postagem com ID: {}", id);
         PostResponseDTO postResponseDTO = new PostResponseDTO();
 
         Post postDB = repository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
@@ -83,6 +91,7 @@ public class PostServiceImpl implements PostService {
 
         buildPostResponse(postResponseDTO, postDB, userResponse);
 
+        log.info("[PostServiceImpl] -> (findById): Postagem encontrada: {}", postResponseDTO);
         return postResponseDTO;
     }
 
@@ -91,6 +100,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     public void delete(Long id) {
+        log.info("[PostServiceImpl] -> (delete): Excluindo postagem com ID: {}", id);
         commentFeignClient.deleteCommentByPostId(id);
         repository.deleteById(id);
 
@@ -102,7 +112,10 @@ public class PostServiceImpl implements PostService {
                                                          .details("Postagem excluída com sucesso.")
                                                          .build();
 
+        log.info("[PostServiceImpl] -> (delete): Enviando mensagem de auditoria: {}", auditMessageDTO);
         producer.integration(auditMessageDTO);
+
+        log.info("[PostServiceImpl] -> (delete): Postagem excluída com sucesso.");
     }
 
     private static void buildPostResponse(PostResponseDTO postResponseDTO, Post postDB, UserResponse userResponse) {
@@ -111,23 +124,5 @@ public class PostServiceImpl implements PostService {
         postResponseDTO.setUpdateAt(postDB.getCreatedAt());
         postResponseDTO.setCreatedAt(postDB.getCreatedAt());
         postResponseDTO.setUserResponse(userResponse);
-    }
-
-    /**
-     * @param payload
-     */
-    @Override
-    public void errorAuditLog(String payload) {
-        System.err.println(" ===== RESPOSTA ERRO AUDITORIA ===== " + payload);
-        log.error("[UserServiceImpl] -> (successAuditLog): Erro ao fazer auditoria.");
-    }
-
-    /**
-     * @param payload
-     */
-    @Override
-    public void successAuditLog(String payload) {
-        System.out.println(" ===== RESPOSTA SUCESSO AUDITORIA ===== " + payload);
-        log.info("[UserServiceImpl] -> (successAuditLog): Sucesso ao fazer auditoria.");
     }
 }

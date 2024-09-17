@@ -1,6 +1,7 @@
 package blog.user.services.infra.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        log.info("[SecurityConfiguration] -> (securityFilterChain): Configurando SecurityFilterChain");
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/user/**", "/api/v1/user/find_by_email", "/api/v1/user/{id}").permitAll()
@@ -44,6 +47,7 @@ public class SecurityConfiguration {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        log.info("[SecurityConfiguration] -> (corsConfigurationSource): Configurando CorsConfigurationSource");
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(corsAllowedOrigins)); // Permitir a origem do frontend
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -51,6 +55,7 @@ public class SecurityConfiguration {
         configuration.setAllowCredentials(true);
 
         return new UrlBasedCorsConfigurationSource() {{
+            log.info("[SecurityConfiguration] -> (corsConfigurationSource): Registrando configuração CORS para /**");
             registerCorsConfiguration("/**", configuration);
         }};
     }

@@ -23,13 +23,16 @@ public class AuditLogRequestProducer {
 
     public void integration(AuditMessageDTO auditMessageDTO) {
         try {
+            log.info("[AuditLogRequestProducer] -> (integration): Enviando mensagem de auditoria para Exchange: {} com Routing Key: {}", EXCHANGE_NAME, ROUTING_KEY_NAME);
+            String message = objectMapper.writeValueAsString(auditMessageDTO);
             amqpTemplate.convertAndSend(
                     EXCHANGE_NAME,
                     ROUTING_KEY_NAME,
-                    objectMapper.writeValueAsString(auditMessageDTO)
+                    message
             );
+            log.info("[AuditLogRequestProducer] -> (integration): Mensagem de auditoria enviada com sucesso: {}", message);
         } catch (JsonProcessingException e) {
-            log.error("Ocorreu um erro ao integrar com a aplicação de auditoria: {}", e.getMessage());
+            log.error("[AuditLogRequestProducer] -> (integration): Ocorreu um erro ao integrar com a aplicação de auditoria: {}", e.getMessage());
         }
     }
 }
