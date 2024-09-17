@@ -90,3 +90,4 @@ jobs:
         run: |
           docker tag audit-service:latest ${{ secrets.DOCKER_USERNAME }}/audit-service:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/audit-service:latest
+
