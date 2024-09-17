@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit-service-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: audit-service
+  template:
+    metadata:
+      labels:
+        app: audit-service
+    spec:
+      containers:
+        - name: audit-service
+          image: audit-service:latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres-service:5432/user-db"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: "create-drop"
+            - name: SPRING_JPA_SHOW_SQL
+              value: "true"
+            - name: SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL
+              value: "true"
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              value: "org.postgresql.Driver"
+            - name: SPRING_DATASOURCE_DATABASE
+              value: "postgresql"
+            - name: SPRING_DATASOURCE_DATABASE_PLATFORM
+              value: "org.hibernate.dialect.PostgreSQLDialect"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audit-service
+spec:
+  ports:
+    - port: 8082
+      targetPort: 8082
+  selector:
+    app: audit-service
