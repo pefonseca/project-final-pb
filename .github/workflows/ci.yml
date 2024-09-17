@@ -64,3 +64,29 @@ jobs:
       - name: Build audit-service image
         run: |
           docker build -t audit-service:latest ./audit-service
+
+      # Step 5: (Optional) Push the images to Docker Hub
+      - name: Push auth-service image
+        run: |
+          docker tag auth-service:latest ${{ secrets.DOCKER_USERNAME }}/auth-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/auth-service:latest
+
+      - name: Push user-service image
+        run: |
+          docker tag user-service:latest ${{ secrets.DOCKER_USERNAME }}/user-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/user-service:latest
+
+      - name: Push post-service image
+        run: |
+          docker tag post-service:latest ${{ secrets.DOCKER_USERNAME }}/post-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/post-service:latest
+
+      - name: Push comment-service image
+        run: |
+          docker tag comment-service:latest ${{ secrets.DOCKER_USERNAME }}/comment-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/comment-service:latest
+
+      - name: Push audit-service image
+        run: |
+          docker tag audit-service:latest ${{ secrets.DOCKER_USERNAME }}/audit-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/audit-service:latest
