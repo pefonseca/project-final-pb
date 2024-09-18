@@ -77,7 +77,7 @@ public class CommentServiceImpl implements CommentService {
 
         AuditMessageDTO auditMessageDTO = AuditMessageDTO.builder()
                                                          .entityName("COMMENT")
-                                                         .entityId(2L)
+                                                         .entityId(3L)
                                                          .action("CREATE")
                                                          .performedBy("User Id: " + commentResponseDTO.getUserResponse().getId())
                                                          .details("Comentário criado com sucesso.")
@@ -120,6 +120,18 @@ public class CommentServiceImpl implements CommentService {
     public void delete(Long id) {
         log.info("[CommentServiceImpl] -> (delete): Excluindo comentário com o ID: {}", id);
         repository.deleteById(id);
+
+        AuditMessageDTO auditMessageDTO = AuditMessageDTO.builder()
+                                                        .entityName("COMMENT")
+                                                        .entityId(3L)
+                                                        .action("DELETE")
+                                                        .performedBy("User Id: There is no user to delete")
+                                                        .details("Comentário excluído com sucesso.")
+                                                        .build();
+
+        log.info("[CommentServiceImpl] -> (deleteCommentByPostId): Enviando mensagem de auditoria: {}", auditMessageDTO);
+        producer.integration(auditMessageDTO);
+
         log.info("[CommentServiceImpl] -> (delete): Comentário com o ID: {} excluído com sucesso", id);
     }
 
@@ -137,7 +149,7 @@ public class CommentServiceImpl implements CommentService {
                                                         .entityId(3L)
                                                         .action("DELETE")
                                                         .performedBy("User Id: There is no user to delete")
-                                                        .details("Comentário criado com sucesso.")
+                                                        .details("Comentários excluídos com sucesso.")
                                                         .build();
 
         log.info("[CommentServiceImpl] -> (deleteCommentByPostId): Enviando mensagem de auditoria: {}", auditMessageDTO);
