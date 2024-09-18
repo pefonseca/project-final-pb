@@ -23,6 +23,7 @@ public class UserResponseDTO {
     private String bio;
     private String city;
     private String createdUser;
+    private LocalDateTime createDate;
 
     public User toUpdate(UserUpdateRequestDTO userUpdateRequestDTO) {
         return User.builder()
@@ -33,6 +34,7 @@ public class UserResponseDTO {
                     .password(this.password)
                     .bio(userUpdateRequestDTO.getBio())
                     .city(userUpdateRequestDTO.getCity())
+                    .createDate(this.createDate)
                     .updateDate(LocalDateTime.now())
                     .build();
     }

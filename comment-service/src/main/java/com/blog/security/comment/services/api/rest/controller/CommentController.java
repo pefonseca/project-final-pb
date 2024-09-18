@@ -65,5 +65,4 @@ public class CommentController {
         log.info("[CommentController] -> (deleteCommentByPostId): Comentários do post com id {} excluídos com sucesso", id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Comentários excluídos com sucesso!");
     }
-
 }

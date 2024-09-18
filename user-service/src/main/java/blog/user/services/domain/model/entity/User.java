@@ -61,6 +61,7 @@ public class User implements UserDetails {
                               .password(this.password)
                               .bio(this.bio)
                               .city(this.city)
+                              .createDate(this.createDate)
                               .build();
     }
 }
