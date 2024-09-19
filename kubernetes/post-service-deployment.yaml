@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: post-service-deployment
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: post-service
